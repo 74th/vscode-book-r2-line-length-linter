@@ -1,5 +1,4 @@
 import * as child_process from "child_process";
-// import * as ls from "vscode-languageserver";
 import {
   createConnection,
   TextDocuments,
@@ -8,13 +7,7 @@ import {
   ProposedFeatures,
   InitializeParams,
   DidChangeConfigurationNotification,
-  CompletionItem,
-  CompletionItemKind,
-  TextDocumentPositionParams,
-  TextDocumentSyncKind,
-  InitializeResult,
-  Files
-} from 'vscode-languageserver/node';
+  TextDocumentSyncKind} from 'vscode-languageserver/node';
 import { URI } from 'vscode-uri';
 import {
   TextDocument
@@ -28,16 +21,10 @@ let documents = new TextDocuments(TextDocument);
 
 connection.onInitialize((params: InitializeParams) => {
   // 初期化前のイベント
-  // ソースコードの同期のモジュールを渡します
+  // ソースコードの同期の仕様を渡す
   return {
     capabilities: {
-      textDocumentSync: {
-        openClose: true,
-        change: TextDocumentSyncKind.Full,
-        save: {
-          includeText: false
-        }
-      }
+      textDocumentSync: TextDocumentSyncKind.Full,
     }
   };
 });
