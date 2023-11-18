@@ -1,19 +1,43 @@
 import * as child_process from "child_process";
-import * as ls from "vscode-languageserver";
+// import * as ls from "vscode-languageserver";
+import {
+  createConnection,
+  TextDocuments,
+  Diagnostic,
+  DiagnosticSeverity,
+  ProposedFeatures,
+  InitializeParams,
+  DidChangeConfigurationNotification,
+  CompletionItem,
+  CompletionItemKind,
+  TextDocumentPositionParams,
+  TextDocumentSyncKind,
+  InitializeResult,
+  Files
+} from 'vscode-languageserver/node';
+import { URI } from 'vscode-uri';
+import {
+  TextDocument
+} from 'vscode-languageserver-textdocument';
 
 // 接続を管理するモジュール
-let connection = ls.createConnection(ls.ProposedFeatures.all);
+let connection = createConnection(ProposedFeatures.all);
 
 // ソースコードの同期を管理するモジュール
-let documents: ls.TextDocuments = new ls.TextDocuments();
+let documents = new TextDocuments(TextDocument);
 
-connection.onInitialize((params: ls.InitializeParams) => {
+connection.onInitialize((params: InitializeParams) => {
   // 初期化前のイベント
   // ソースコードの同期のモジュールを渡します
   return {
     capabilities: {
-      textDocumentSync: documents.syncKind,
-
+      textDocumentSync: {
+        openClose: true,
+        change: TextDocumentSyncKind.Full,
+        save: {
+          includeText: false
+        }
+      }
     }
   };
 });
@@ -23,7 +47,7 @@ connection.onInitialized(() => {
 
   // 設定が変更されたとき、イベントを受け取るように設定します
   connection.client.register(
-    ls.DidChangeConfigurationNotification.type,
+    DidChangeConfigurationNotification.type,
     undefined
   );
 });
@@ -77,9 +101,9 @@ documents.onDidSave(e => {
 
 
 // リントの実行
-async function validateTextDocument(textDocument: ls.TextDocument): Promise<void> {
+async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
-  const filePath = ls.Files.uriToFilePath(textDocument.uri);
+  const filePath = URI.parse(textDocument.uri).fsPath;
   if (!filePath) {
     // ファイルが特定できない場合は何もしない
     return;
@@ -97,7 +121,7 @@ async function validateTextDocument(textDocument: ls.TextDocument): Promise<void
   let pattern = /^([^\s]+):(\d+): (.*)$/;
 
   let problems = 0;
-  let diagnostics: ls.Diagnostic[] = [];
+  let diagnostics: Diagnostic[] = [];
   for (let outputLine of output.split("\n")) {
     problems++;
     if (problems > 100) {
@@ -114,8 +138,8 @@ async function validateTextDocument(textDocument: ls.TextDocument): Promise<void
     const message = m[3];
 
     // エラーとして登録
-    let diagnostic: ls.Diagnostic = {
-      severity: ls.DiagnosticSeverity.Warning,
+    let diagnostic: Diagnostic = {
+      severity: DiagnosticSeverity.Warning,
       range: {
         start: { line, character: 80 },
         end: { line, character: Number.MAX_VALUE }

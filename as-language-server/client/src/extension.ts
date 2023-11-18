@@ -1,22 +1,28 @@
 import * as path from "path";
 import * as vscode from "vscode";
-import * as ls from "vscode-languageclient";
+import {
+  DocumentSelector,
+	LanguageClient,
+	LanguageClientOptions,
+	ServerOptions,
+	TransportKind
+} from 'vscode-languageclient/node';
 
-let client: ls.LanguageClient;
+let client: LanguageClient;
 
 export function activate(context: vscode.ExtensionContext) {
   // Language Server のプログラムのパス
   let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
 
   // Language Server の設定
-  let serverOptions: ls.ServerOptions = {
+  let serverOptions: ServerOptions = {
     run: {
       module: serverModule,
-      transport: ls.TransportKind.ipc
+      transport: TransportKind.ipc
     },
     debug: {
       module: serverModule,
-      transport: ls.TransportKind.ipc,
+      transport: TransportKind.ipc,
       // デバッグオプションはデバッグ時のみ付与する
       options: {
         execArgv: ["--nolazy", "--inspect=6010"]
@@ -26,10 +32,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   const documentSelector = [
     { scheme: "file" },
-  ] as ls.DocumentSelector;
+  ] as DocumentSelector;
 
   // Language Client の設定
-  const clientOptions: ls.LanguageClientOptions = {
+  const clientOptions: LanguageClientOptions = {
     documentSelector,
     // 同期する設定項目
     synchronize: {
@@ -39,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   // Language Client の作成
-  client = new ls.LanguageClient(
+  client = new LanguageClient(
     // 拡張機能のID
     "line-length-linter",
     // ユーザ向けの名前（出力ペインで使用されます）

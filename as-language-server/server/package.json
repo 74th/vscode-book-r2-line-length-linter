@@ -6,11 +6,9 @@
     "node": "*"
   },
   "dependencies": {
-    "vscode-languageserver": "^5.2.1"
+    "vscode-languageserver": "^8.1.0",
+    "vscode-languageserver-textdocument": "^1.0.8",
+    "vscode-uri": "^3.0.8"
   },
-  "scripts": {},
-  "devDependencies": {
-    "@types/node": "^12.12.21",
-    "typescript": "^3.7.4"
-  }
+  "scripts": {}
 }
