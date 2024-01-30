@@ -10,7 +10,6 @@
     "Linters"
   ],
   "activationEvents": [
-    "onCommand:workbench.action.tasks.runTask"
   ],
   "main": "./out/extension.js",
   "contributes": {
